@@ -33,52 +33,91 @@ namespace Hackathon.GameHost
 
         public void Initialize()
         {
-            server.Authenticate(GAME_CHANNEL, "socket-id");
+            Pusher.channel_auth_endpoint = "https://beta.network360.com/pusher/auth/gamehome";
+            var privateChannel = client.Subscribe(GAME_CHANNEL);
+            privateChannel.Bind("client-player-added", OnMemberAdded);
+            privateChannel.Bind("client-player-dropped", OnMemberRemoved);
 
-            var presenceChannel = client.Subscribe(GAME_CHANNEL);
-            presenceChannel.Bind("pusher:member_added", OnMemberAdded);
-            presenceChannel.Bind("pusher:member_removed", OnMemberRemoved);
-
-            presenceChannel.Bind(
+            privateChannel.Bind(
                 "game:player_guess_submitted",
                 d =>
-                    {
-                        if (OnPlayerGuessSubmitted != null)
-                            OnPlayerGuessSubmitted(this, new JSONEventArgs(d));
-                    });
+                {
+                    if (OnPlayerGuessSubmitted != null)
+                        OnPlayerGuessSubmitted(this, new JSONEventArgs(d));
+                });
 
             var publicChannel = client.Subscribe(PUBLIC_CHANNEL);
             publicChannel.Bind(
-                "game:shutdown",
+                "gameshutdown",
                 d =>
                     {
                         if (OnShutDown != null)
-                            OnShutDown(this, EventArgs.Empty);
+                            OnShutDown(this, new JSONEventArgs(d));
                     });
         }
 
         public event EventHandler<JSONEventArgs> OnPlayerJoined;
         public event EventHandler<JSONEventArgs> OnPlayerQuit;
         public event EventHandler<JSONEventArgs> OnPlayerGuessSubmitted;
-        public event EventHandler OnShutDown;
+        public event EventHandler<JSONEventArgs> OnShutDown;
 
         public void StartRound(IEnumerable<Player> players, GameImage image, GameRound round)
         {
+            var request = new ObjectPusherRequest(
+                PUBLIC_CHANNEL,
+                "gamestartround",
+                new
+                    {
+                        round = round,
+                        players = players,
+                        image = image
+                    });
+
+            server.Trigger(request);
         }
 
         public void UpdatePlayerStatus(Player player, GameRound round, string status)
         {
-            throw new NotImplementedException();
+            var request = new ObjectPusherRequest(
+                PUBLIC_CHANNEL,
+                "gameupdateplayerstatus",
+                new
+                {
+                    round = round,
+                    player = player,
+                    status = status
+                });
+
+            server.Trigger(request);
         }
 
         public void StartJudgingRound(GameRound round, IDictionary<Player, string> guessByPlayer)
         {
-            throw new NotImplementedException();
+            var request = new ObjectPusherRequest(
+                PUBLIC_CHANNEL,
+                "gamestartjudginground",
+                new
+                {
+                    round = round,
+                    playerGuesses = guessByPlayer
+                });
+
+            server.Trigger(request);
         }
 
         public void EndRound(GameRound round, IDictionary<Player, string> guessByPlayer, Player winner)
         {
-            throw new NotImplementedException();
+            var request = new ObjectPusherRequest(
+                PUBLIC_CHANNEL,
+                "gameendround",
+                new
+                {
+                    round = round,
+                    winner = winner,
+                    playerGuesses = guessByPlayer
+                });
+
+            server.Trigger(request);
         }
 
         public void Dispose()
@@ -88,7 +127,7 @@ namespace Hackathon.GameHost
 
         private void OnMemberAdded(dynamic data)
         {
-            Channel privateChannel = client.Subscribe(data.private_channel);
+            Channel privateChannel = client.Subscribe(data.player.info.private_channel);
             privateChannel.Bind(
                 "game:player_guess_submitted",
                 a =>
@@ -103,7 +142,7 @@ namespace Hackathon.GameHost
 
         private void OnMemberRemoved(dynamic data)
         {
-            client.Unsubscribe(data.private_channel);
+            client.Unsubscribe(data.player.info.private_channel);
 
             if (OnPlayerQuit != null)
                 OnPlayerQuit(this, new JSONEventArgs(data));
