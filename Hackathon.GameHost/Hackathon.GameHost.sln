@@ -7,16 +7,32 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tester", "Tester\Tester.csp
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
 		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E2E2C6C8-D385-4B70-B7FD-1A81A1E45518}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{E2E2C6C8-D385-4B70-B7FD-1A81A1E45518}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{E2E2C6C8-D385-4B70-B7FD-1A81A1E45518}.Debug|Mixed Platforms.Build.0 = Debug|x86
 		{E2E2C6C8-D385-4B70-B7FD-1A81A1E45518}.Debug|x86.ActiveCfg = Debug|x86
 		{E2E2C6C8-D385-4B70-B7FD-1A81A1E45518}.Debug|x86.Build.0 = Debug|x86
+		{E2E2C6C8-D385-4B70-B7FD-1A81A1E45518}.Release|Any CPU.ActiveCfg = Release|x86
+		{E2E2C6C8-D385-4B70-B7FD-1A81A1E45518}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{E2E2C6C8-D385-4B70-B7FD-1A81A1E45518}.Release|Mixed Platforms.Build.0 = Release|x86
 		{E2E2C6C8-D385-4B70-B7FD-1A81A1E45518}.Release|x86.ActiveCfg = Release|x86
 		{E2E2C6C8-D385-4B70-B7FD-1A81A1E45518}.Release|x86.Build.0 = Release|x86
+		{1619FDEF-1C4B-4FBF-83DB-A5CDDA2B3716}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{1619FDEF-1C4B-4FBF-83DB-A5CDDA2B3716}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{1619FDEF-1C4B-4FBF-83DB-A5CDDA2B3716}.Debug|Mixed Platforms.Build.0 = Debug|x86
 		{1619FDEF-1C4B-4FBF-83DB-A5CDDA2B3716}.Debug|x86.ActiveCfg = Debug|x86
 		{1619FDEF-1C4B-4FBF-83DB-A5CDDA2B3716}.Debug|x86.Build.0 = Debug|x86
+		{1619FDEF-1C4B-4FBF-83DB-A5CDDA2B3716}.Release|Any CPU.ActiveCfg = Release|x86
+		{1619FDEF-1C4B-4FBF-83DB-A5CDDA2B3716}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{1619FDEF-1C4B-4FBF-83DB-A5CDDA2B3716}.Release|Mixed Platforms.Build.0 = Release|x86
 		{1619FDEF-1C4B-4FBF-83DB-A5CDDA2B3716}.Release|x86.ActiveCfg = Release|x86
 		{1619FDEF-1C4B-4FBF-83DB-A5CDDA2B3716}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection

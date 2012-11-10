@@ -37,8 +37,9 @@
     <Reference Include="Microsoft.ServiceModel.WebSockets.DesktopClient">
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Microsoft SDKs\WCF WebSockets\11.06.22\bin\Microsoft.ServiceModel.WebSockets.DesktopClient.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\lib\Json40r2\Bin\Net\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=4.0.2.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\Json40r2\Bin\Net\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
