@@ -53,8 +53,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Domain\GameImage.cs" />
+    <Compile Include="Domain\GameRound.cs" />
+    <Compile Include="Domain\Player.cs" />
+    <Compile Include="GameHost.cs" />
     <Compile Include="ImageData.cs" />
     <Compile Include="ITumblrService.cs" />
+    <Compile Include="Domain\JSONEventArgs.cs" />
     <Compile Include="LmgtfyClient.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
