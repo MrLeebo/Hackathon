@@ -1,4 +1,5 @@
 ﻿using System;
+using Hackathon.GameHost.Lmgtfy;
 
 namespace Hackathon.GameHost
 {
@@ -8,21 +9,11 @@ namespace Hackathon.GameHost
         {
             Console.WriteLine("Initializing the game...");
 
-            using (var host = new GameHost())
-            {
-                host.OnPlayerGuessSubmitted += (o, e) => Console.WriteLine("Player '{0}''s guess is: {1}", e, e);
-                host.OnPlayerJoined += (o, e) => Console.WriteLine("Player '{0}' joined.", e);
-                host.OnPlayerQuit += (o, e) => Console.WriteLine("Player '{0}' quit.", e);
+            LmgtfyClient lmgtfyClient = new LmgtfyClient();
+            LmgtfyResponse lmgtfyResponse = lmgtfyClient.Load();
 
-                bool shutdown = false;
-                host.OnShutDown += (o, e) => shutdown = true;
-
-                host.Initialize();
-
-                Console.WriteLine("The game is running. Press Ctrl+C to kill it.");
-                while (!shutdown) {}
-            }
-
+            TumblrClient client = new TumblrClient();
+            TumblrResponse result = client.Tagged("corn");
             Console.WriteLine("The game has stopped.");
         }
     }

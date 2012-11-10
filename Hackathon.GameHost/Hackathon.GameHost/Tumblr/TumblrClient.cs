@@ -5,9 +5,9 @@ namespace Hackathon.GameHost
     public class TumblrClient : ClientBase<ITumblrService>
     {
         public TumblrClient()
-            : base("endpoint") {}
+            : base("tumblrEndpoint") { }
 
-        public ImageData Tagged(string tag)
+        public TumblrResponse Tagged(string tag)
         {
             return this.Channel.Tagged(tag);
         }

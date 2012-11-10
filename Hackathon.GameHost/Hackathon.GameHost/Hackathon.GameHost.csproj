@@ -70,13 +70,15 @@
     <Compile Include="Domain\Player.cs" />
     <Compile Include="GameHost.cs" />
     <Compile Include="IGameHost.cs" />
-    <Compile Include="ImageData.cs" />
-    <Compile Include="ITumblrService.cs" />
+    <Compile Include="Lmgtfy\ILmgtfyService.cs" />
+    <Compile Include="Lmgtfy\LmgtfyResponse.cs" />
+    <Compile Include="Tumblr\TumblrResponse.cs" />
+    <Compile Include="Tumblr\ITumblrService.cs" />
     <Compile Include="Domain\JSONEventArgs.cs" />
-    <Compile Include="LmgtfyClient.cs" />
+    <Compile Include="Lmgtfy\LmgtfyClient.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TumblrClient.cs" />
+    <Compile Include="Tumblr\TumblrClient.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
