@@ -4,3 +4,9 @@ obj
 
 # mstest test results
 TestResults
+
+# User options
+*.suo
+
+# ReSharper
+_ReSharper.*
