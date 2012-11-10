@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using PusherClientDotNet;
 
 namespace Hackathon.GameHost.Domain
 {
@@ -14,5 +12,9 @@ namespace Hackathon.GameHost.Domain
             this.JSONData = data;
         }
 
+        public JSONEventArgs(object json)
+        {
+            this.JSONData = Pusher.JSON.stringify(json);
+        }
     }
 }

@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hackathon.GameHost", "Hackathon.GameHost\Hackathon.GameHost.csproj", "{E2E2C6C8-D385-4B70-B7FD-1A81A1E45518}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tester", "Tester\Tester.csproj", "{1619FDEF-1C4B-4FBF-83DB-A5CDDA2B3716}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -13,6 +15,10 @@ Global
 		{E2E2C6C8-D385-4B70-B7FD-1A81A1E45518}.Debug|x86.Build.0 = Debug|x86
 		{E2E2C6C8-D385-4B70-B7FD-1A81A1E45518}.Release|x86.ActiveCfg = Release|x86
 		{E2E2C6C8-D385-4B70-B7FD-1A81A1E45518}.Release|x86.Build.0 = Release|x86
+		{1619FDEF-1C4B-4FBF-83DB-A5CDDA2B3716}.Debug|x86.ActiveCfg = Debug|x86
+		{1619FDEF-1C4B-4FBF-83DB-A5CDDA2B3716}.Debug|x86.Build.0 = Debug|x86
+		{1619FDEF-1C4B-4FBF-83DB-A5CDDA2B3716}.Release|x86.ActiveCfg = Release|x86
+		{1619FDEF-1C4B-4FBF-83DB-A5CDDA2B3716}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
