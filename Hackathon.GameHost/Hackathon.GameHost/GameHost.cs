@@ -34,7 +34,7 @@ namespace Hackathon.GameHost
 
         public void Initialize()
         {
-            Pusher.channel_auth_endpoint = "https://beta.network360.com/pusher/auth/gamehome";
+            Pusher.channel_auth_endpoint = "http://beta.network360.com/pusher/auth/gamehome";
             var privateChannel = client.Subscribe(SERVER_CHANNEL);
             privateChannel.Bind("client-player-added", OnMemberAdded);
             privateChannel.Bind("client-player-dropped", OnMemberRemoved);

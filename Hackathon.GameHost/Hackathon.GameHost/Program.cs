@@ -1,5 +1,4 @@
 ﻿using System;
-using Hackathon.GameHost.Lmgtfy;
 using PusherClientDotNet;
 
 namespace Hackathon.GameHost
@@ -8,15 +7,7 @@ namespace Hackathon.GameHost
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Random testing crap...");
-
-            LmgtfyClient lmgtfyClient = new LmgtfyClient();
-            LmgtfyResponse lmgtfyResponse = lmgtfyClient.Load();
-
-            TumblrClient client = new TumblrClient();
-            TumblrResponse result = client.Tagged("corn");
-
-            Pusher.OnLog += Log;
+            //Pusher.OnLog += Log;
 
             Console.WriteLine("Initializing the game...");
 

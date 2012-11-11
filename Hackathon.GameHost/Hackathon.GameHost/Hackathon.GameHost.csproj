@@ -86,6 +86,7 @@
     <Compile Include="IGameHost.cs" />
     <Compile Include="Lmgtfy\ILmgtfyService.cs" />
     <Compile Include="Lmgtfy\LmgtfyResponse.cs" />
+    <Compile Include="RandomImagePicker.cs" />
     <Compile Include="Tumblr\TumblrResponse.cs" />
     <Compile Include="Tumblr\ITumblrService.cs" />
     <Compile Include="IImagePicker.cs" />
