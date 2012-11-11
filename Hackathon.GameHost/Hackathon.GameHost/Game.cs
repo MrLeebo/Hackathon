@@ -213,8 +213,21 @@ namespace Hackathon.GameHost
                                 return;
                         }
 
-                        foreach (var activePlayer in activePlayers.Where(x => string.IsNullOrEmpty(x.guess)))
-                            activePlayer.guess = "No guess";
+                        bool playersHaveGuesses = false;
+                        foreach (var activePlayer in activePlayers)
+                        {
+                            if (!string.IsNullOrEmpty(activePlayer.guess))
+                                playersHaveGuesses = true;
+                            else
+                                activePlayer.guess = "No guess";
+                        }
+
+                        if (!playersHaveGuesses)
+                        {
+                            Console.WriteLine("Nobody submitted any guesses! Starting over.");
+                            this.gameHost.ResetGame(this.round.Id);
+                            return;
+                        }
 
                         this.gameHost.JudgingReady(this.round.Id, this.Judge, this.SortedPlayers);
 
