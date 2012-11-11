@@ -11,10 +11,10 @@ namespace Hackathon.GameHost
         #region Fields
 
         private const int STARTING_TIME_IN_SECONDS = 5;
-        private const int GUESSING_TIME_IN_SECONDS = 10;
-        private const int JUDGING_TIME_IN_SECONDS = 10;
+        private const int GUESSING_TIME_IN_SECONDS = 15;
+        private const int JUDGING_TIME_IN_SECONDS = 15;
         private const int GAME_OVER_TIME_IN_SECONDS = 10;
-        private const int INTERVAL_IN_SECONDS = 5;
+        private const int INTERVAL_IN_SECONDS = 1;
 
         private readonly GameHost gameHost;
         private readonly IImagePicker imagePicker;
@@ -34,6 +34,26 @@ namespace Hackathon.GameHost
         #region Public Properties
 
         public bool Running { get; set; }
+
+        public Player Judge
+        {
+            get
+            {
+                return this.activePlayers.FirstOrDefault(x => x.type == "judge");
+            }
+        }
+
+        public Player[] SortedPlayers
+        {
+            get
+            {
+                return
+                    this.activePlayers
+                        .OrderByDescending(x => x.current_score)
+                        .ThenBy(x => x.name)
+                        .ToArray();
+            }
+        }
 
         #endregion
 
@@ -108,7 +128,6 @@ namespace Hackathon.GameHost
             this.pendingPlayers.RemoveAll(x => x.name == player.name);
         }
 
-        private readonly object playerJoinLock = new object();
         private void OnPlayerJoined(object sender, ClientEventArgs e)
         {
             if (activePlayers.Any(x => x.name == e.ClientData.id) || pendingPlayers.Any(x => x.name == e.ClientData.id))
@@ -155,7 +174,7 @@ namespace Hackathon.GameHost
                             Console.WriteLine("Current list of players: {0}", GetPlayerNames());
                         }
 
-                        if (activePlayers.Count < 3)
+                        if (activePlayers.Count < 2)
                         {
                             Console.WriteLine("Not enough players...");
                             gameState = GameState.Initializing;
@@ -178,20 +197,26 @@ namespace Hackathon.GameHost
                     }
                 case GameState.Guessing:
                     {
-                        if (this.activePlayers.All(x => x.type != "judge"))
+                        // Reset if the judge quits.
+                        if (this.Judge == null)
                         {
                             Console.WriteLine("The judge has quit the game.");
+                            this.gameHost.ResetGame(this.round.Id);
                             gameState = GameState.Initializing;
                             return;
                         }
 
-                        if (DateTime.Now < roundFinishedInterval)
-                            return;
+                        // End the round early if all guesses are in.
+                        if (activePlayers.Any(x => string.IsNullOrEmpty(x.guess)))
+                        {
+                            if (DateTime.Now < roundFinishedInterval)
+                                return;
+                        }
 
                         foreach (var activePlayer in activePlayers.Where(x => string.IsNullOrEmpty(x.guess)))
                             activePlayer.guess = "No guess";
 
-                        StartJudging();
+                        this.gameHost.JudgingReady(this.round.Id, this.Judge, this.SortedPlayers);
 
                         Console.WriteLine("The Guessing phase is over. Transitioning to Judging.");
 
@@ -201,15 +226,19 @@ namespace Hackathon.GameHost
                     }
                 case GameState.Judging:
                     {
-                        if (this.activePlayers.All(x => x.type != "judge"))
+                        if (Judge == null)
                         {
                             Console.WriteLine("The judge has quit the game.");
+                            this.gameHost.ResetGame(this.round.Id);
                             gameState = GameState.Initializing;
                             return;
                         }
 
-                        if (DateTime.Now < roundFinishedInterval)
-                            return;
+                        if (this.round.Winner == null)
+                        {
+                            if (DateTime.Now < roundFinishedInterval)
+                                return;
+                        }
 
                         bool winnerFound = false;
                         foreach (var activePlayer in activePlayers)
@@ -228,17 +257,10 @@ namespace Hackathon.GameHost
                         else
                             Console.WriteLine("No winner found...");
 
-                        var players =
-                            this.activePlayers
-                                .OrderByDescending(x => x.current_score)
-                                .ThenBy(x => x.name)
-                                .ToArray();
-
                         this.gameHost.JudgingComplete(
                             this.round.Id, 
-                            this.round.Winner, 
-                            this.round.ActualTerm, 
-                            players);
+                            this.round.Winner,
+                            this.round.ActualSearch);
 
                         Console.WriteLine("The Judging phase is over. Transitioning to Game Over in {0} second(s).", GAME_OVER_TIME_IN_SECONDS);
 
@@ -251,6 +273,12 @@ namespace Hackathon.GameHost
                     {
                         if (DateTime.Now < roundFinishedInterval)
                             return;
+
+                        this.gameHost.RoundComplete(
+                            this.round.Id,
+                            this.round.Winner,
+                            this.SortedPlayers,
+                            this.round.ActualSearch);
 
                         Console.WriteLine("The Game Over phase is over. Transitioning to Waiting for Game to Start.");
 
@@ -296,33 +324,16 @@ namespace Hackathon.GameHost
             var image = GameImage.FromImageData(pickedImage);
 
             this.round.Id = Guid.NewGuid();
-            this.round.ActualTerm = pickedImage.Term;
+            this.round.ActualSearch = pickedImage.Term;
             this.round.Winner = null;
 
             foreach (var activePlayer in activePlayers)
                 activePlayer.guess = null;
 
-            var players =
-                this.activePlayers
-                    .OrderByDescending(x => x.current_score)
-                    .ThenBy(x => x.name)
-                    .ToArray();
-
             this.gameHost.RoundStarted(
                 this.round.Id, 
-                image.URL, 
-                players);
-        }
-
-        private void StartJudging()
-        {
-            var players =
-                this.activePlayers
-                    .OrderByDescending(x => x.current_score)
-                    .ThenBy(x => x.name)
-                    .ToArray();
-
-            this.gameHost.JudgingReady(this.round.Id, players);
+                image.URL,
+                this.SortedPlayers);
         }
 
         private string GetPlayerNames()

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Hackathon.GameHost.Domain;
 using PusherClientDotNet;
 using PusherRESTDotNet;
@@ -62,7 +61,7 @@ namespace Hackathon.GameHost
                     {
                         round_id = roundId,
                         image_url = imageUrl,
-                        players = players.ToArray()
+                        players = players
                     };
 
             var request = new ObjectPusherRequest(
@@ -73,7 +72,7 @@ namespace Hackathon.GameHost
             server.Trigger(request);
         }
 
-        public void JudgingReady(Guid roundId, Player[] players)
+        public void JudgingReady(Guid roundId, Player judge, Player[] players)
         {
             var data =
                 new RoundStart
@@ -83,27 +82,45 @@ namespace Hackathon.GameHost
                     };
 
             var request = new ObjectPusherRequest(
-                PUBLIC_CHANNEL,
+                judge.private_channel,
                 "game-judging-ready",
                 data);
 
             server.Trigger(request);
         }
 
-        public void JudgingComplete(Guid roundId, Player winner, string actualTerm, Player[] players)
+        public void JudgingComplete(Guid roundId, Player winner, string actualSearch)
         {
             var data =
                 new RoundWinner
                     {
                         round_id = roundId,
                         winning_player = (winner != null) ? winner.name : null,
-                        actual_term = actualTerm,
-                        players = players
+                        actual_search = actualSearch
                     };
 
             var request = new ObjectPusherRequest(
                 PUBLIC_CHANNEL,
                 "game-judging-completed",
+                data);
+
+            server.Trigger(request);
+        }
+
+        public void RoundComplete(Guid roundId, Player winner, Player[] players, string actualSearch)
+        {
+            var data =
+                new RoundWinner
+                {
+                    round_id = roundId,
+                    winning_player = (winner != null) ? winner.name : null,
+                    actual_search = actualSearch,
+                    players = players
+                };
+
+            var request = new ObjectPusherRequest(
+                PUBLIC_CHANNEL,
+                "game-round-completed",
                 data);
 
             server.Trigger(request);

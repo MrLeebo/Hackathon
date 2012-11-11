@@ -6,6 +6,6 @@ namespace Hackathon.GameHost.Domain
     {
         public Guid Id { get; set; }
         public Player Winner { get; set; }
-        public string ActualTerm { get; set; }
+        public string ActualSearch { get; set; }
     }
 }
