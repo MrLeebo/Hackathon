@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Web.Script.Serialization;
 using Hackathon.GameHost.Domain;
 
 namespace Hackathon.GameHost
@@ -22,51 +21,61 @@ namespace Hackathon.GameHost
         private readonly List<Player> activePlayers = new List<Player>();
         private readonly List<Player> pendingPlayers = new List<Player>();
 
-        private readonly Dictionary<Player, string> playerGuesses = new Dictionary<Player, string>(); 
-
         private readonly GameRound round;
 
         private GameState gameState = GameState.New;
         private DateTime roundFinishedInterval;
 
+        public bool Running { get; set; }
+
         public Game()
         {
             this.gameHost = new GameHost();
-            this.gameHost.OnPlayerJoined += OnPlayerJoined;
-            this.gameHost.OnPlayerQuit += OnPlayerQuit;
-            this.gameHost.OnPlayerGuessSubmitted += OnPlayerGuessSubmitted;
+            this.gameHost.PlayerJoined += OnPlayerJoined;
+            this.gameHost.PlayerQuit += OnPlayerQuit;
+            this.gameHost.GuessSubmitted += OnPlayerGuessSubmitted;
+            this.gameHost.JudgeSubmitted += OnJudgeAnswerSubmitted;
+
+            this.Running = true;
+            this.gameHost.ShutDown += (o, e) => this.Running = false;
 
             this.imagePicker = new SimpleImagePicker();
             this.timer = new Timer(OnTimerInterval);
             this.round = new GameRound();
         }
 
-        private void OnPlayerGuessSubmitted(object sender, JSONEventArgs e)
+        private void OnJudgeAnswerSubmitted(object sender, JudgingCompleteEventArgs e)
         {
-            var serializer = new JavaScriptSerializer();
-            var playerGuess = serializer.Deserialize<PushPlayerGuess>(e.JSONData);
-            var player = new Player(playerGuess.name);
+            if (e.RoundWinner.round_id != this.round.Id)
+                return;
 
-            this.playerGuesses.Add(player, playerGuess.guess);
+            this.round.Winner = e.RoundWinner.winning_player;
         }
 
-        private void OnPlayerQuit(object sender, JSONEventArgs e)
+        private void OnPlayerGuessSubmitted(object sender, GuessSubmittedEventArgs e)
         {
-            var player = new Player(e.JSONData);
-            this.activePlayers.RemoveAll(x => x.Name == player.Name);
+            if (e.SubmittedGuess.round_id != this.round.Id)
+                return;
+
+            foreach (var activePlayer in activePlayers.Where(x => x.name == e.SubmittedGuess.player))
+                activePlayer.guess = e.SubmittedGuess.guess;
         }
 
-        private void OnPlayerJoined(object sender, JSONEventArgs e)
+        private void OnPlayerQuit(object sender, ClientEventArgs e)
         {
-            var player = new Player(e.JSONData);
-            this.pendingPlayers.Add(player);
+            var player = e.ClientData.info;
+            this.activePlayers.RemoveAll(x => x.name == player.name);
+            this.pendingPlayers.RemoveAll(x => x.name == player.name);
+        }
+
+        private void OnPlayerJoined(object sender, ClientEventArgs e)
+        {
+            this.pendingPlayers.Add(e.ClientData.info);
         }
 
         public void Start()
         {
             this.gameHost.Initialize();
-            this.gameState = GameState.Initializing;
-
             this.timer.Change(INTERVAL_IN_SECONDS, INTERVAL_IN_SECONDS);
         }
 
@@ -81,6 +90,11 @@ namespace Hackathon.GameHost
             {
                 case GameState.New:
                     {
+                        Console.WriteLine("Starting a new game...");
+
+                        this.gameState = GameState.Initializing;
+                        roundFinishedInterval = DateTime.Now;
+
                         this.Start();
                         return;
                     }
@@ -104,7 +118,6 @@ namespace Hackathon.GameHost
 
                         if (activePlayers.Count < 3)
                         {
-                            Console.WriteLine("Too few players to start a game. Resetting timer.");
                             gameState = GameState.Initializing;
                             return;
                         }
@@ -126,6 +139,12 @@ namespace Hackathon.GameHost
                         if (DateTime.Now < roundFinishedInterval)
                             return;
 
+                        foreach (var activePlayer in activePlayers.Where(x => string.IsNullOrEmpty(x.guess)))
+                            activePlayer.guess = "No guess";
+
+                        StartJudging();
+
+                        gameState = GameState.Judging;
                         roundFinishedInterval = DateTime.Now.AddSeconds(JUDGING_TIME_IN_SECONDS);
                         return;
                     }
@@ -134,6 +153,17 @@ namespace Hackathon.GameHost
                         if (DateTime.Now < roundFinishedInterval)
                             return;
 
+                        foreach (var activePlayer in activePlayers)
+                        {
+                            if (activePlayer.name == this.round.Winner)
+                            {
+                                activePlayer.current_score++;
+                            }
+
+                            activePlayer.rounds_played++;
+                        }
+
+                        gameState = GameState.GameOver;
                         roundFinishedInterval = DateTime.Now.AddSeconds(GAME_OVER_TIME_IN_SECONDS);
 
                         return;
@@ -144,6 +174,7 @@ namespace Hackathon.GameHost
                             return;
 
                         gameState = GameState.WaitingForGameStart;
+                        roundFinishedInterval = DateTime.Now.AddSeconds(STARTING_TIME_IN_SECONDS);
 
                         return;
                     }
@@ -163,13 +194,24 @@ namespace Hackathon.GameHost
 
             this.round.Id = Guid.NewGuid();
 
-            this.gameHost.StartRound(this.activePlayers, image, this.round);
+            foreach (var activePlayer in activePlayers)
+                activePlayer.guess = null;
+
+            this.gameHost.RoundStarted(
+                this.round.Id, 
+                image.URL, 
+                this.activePlayers.ToArray());
+        }
+
+        private void StartJudging()
+        {
+            this.gameHost.JudgingReady(this.round.Id, this.activePlayers.ToArray());
         }
 
         private string GetPlayerNames()
         {
             // Comma-delimit the player names.
-            var names = activePlayers.Aggregate("", (accum, player) => accum + ", " + player.Name);
+            var names = activePlayers.Aggregate("", (accum, player) => accum + ", " + player.name);
 
             // Trim the comma from the start of the string.
             return names.Substring(2, names.Length - 2);

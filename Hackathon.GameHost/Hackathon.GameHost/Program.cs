@@ -8,29 +8,24 @@ namespace Hackathon.GameHost
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Initializing the game...");
+            Console.WriteLine("Random testing crap...");
 
             LmgtfyClient lmgtfyClient = new LmgtfyClient();
             LmgtfyResponse lmgtfyResponse = lmgtfyClient.Load();
 
-            Pusher.OnLog += Log;
-
-            using (var host = new GameHost())
-            {
-                host.OnPlayerGuessSubmitted += (o, e) => Console.WriteLine("Player '{0}''s guess is: {1}", e, e);
-                host.OnPlayerJoined += (o, e) => Console.WriteLine("Player '{0}' joined.", e);
-                host.OnPlayerQuit += (o, e) => Console.WriteLine("Player '{0}' quit.", e);
-
-                bool shutdown = false;
-                host.OnShutDown += (o, e) => Console.WriteLine(Pusher.JSON.stringify(e.JSONData)); //shutdown = true;
-
-                host.Initialize();
-
-                Console.WriteLine("The game is running. Press Ctrl+C to kill it.");
-                while (!shutdown) {}
-            }
             TumblrClient client = new TumblrClient();
             TumblrResponse result = client.Tagged("corn");
+
+            Pusher.OnLog += Log;
+
+            Console.WriteLine("Initializing the game...");
+
+            var game = new Game();
+            game.Start();
+
+            Console.WriteLine("The game is running. Press Ctrl+C to kill it.");
+            while (game.Running) { }
+
             Console.WriteLine("The game has stopped.");
         }
 

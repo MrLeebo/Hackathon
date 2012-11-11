@@ -1,19 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Hackathon.GameHost.Domain;
 
 namespace Hackathon.GameHost
 {
     public interface IGameHost
     {
-        event EventHandler<JSONEventArgs> OnPlayerJoined;
-        event EventHandler<JSONEventArgs> OnPlayerGuessSubmitted;
+        event EventHandler<ClientEventArgs> PlayerJoined;
+        event EventHandler<ClientEventArgs> PlayerQuit;
+        event EventHandler<GuessSubmittedEventArgs> GuessSubmitted;
+        event EventHandler<JudgingCompleteEventArgs> JudgeSubmitted;
 
-        void StartRound(IEnumerable<Player> players, GameImage image, GameRound round);
-        void UpdatePlayerStatus(Player player, GameRound round, string status);
-        void StartJudgingRound(GameRound round, IDictionary<Player, string> guessByPlayer);
-        void EndRound(GameRound round, IDictionary<Player, string> guessByPlayer, Player winner);        
+        event EventHandler ShutDown;
+
+        void RoundStarted(Guid roundId, string imageUrl, Player[] players);
+        void JudgingReady(Guid roundId, Player[] players);
+        void JudgingComplete(Guid roundId, Player winner, Player[] player);        
     }
 }
