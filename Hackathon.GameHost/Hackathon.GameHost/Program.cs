@@ -27,8 +27,10 @@ namespace Hackathon.GameHost
                 host.Initialize();
 
                 Console.WriteLine("The game is running. Press Ctrl+C to kill it.");
-                while (!shutdown) {}
+                while (!shutdown) { }
             }
+
+
             TumblrClient client = new TumblrClient();
             TumblrResponse result = client.Tagged("corn");
             Console.WriteLine("The game has stopped.");
