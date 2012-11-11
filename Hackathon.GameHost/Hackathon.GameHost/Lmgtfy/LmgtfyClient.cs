@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.ServiceModel;
+﻿using System.Text;
 using System.Net;
 using System.IO;
-using Newtonsoft.Json;
+using System.Web.Script.Serialization;
 
 namespace Hackathon.GameHost.Lmgtfy
 {
@@ -13,19 +9,17 @@ namespace Hackathon.GameHost.Lmgtfy
     {
         public LmgtfyResponse Load()
         {
-            HttpWebRequest webRequest = (HttpWebRequest)HttpWebRequest.Create("http://live.lmgtfy.com/recent.json");
-            HttpWebResponse response = (HttpWebResponse)webRequest.GetResponse();
-            // Get the stream associated with the response.
-            Stream receiveStream = response.GetResponseStream();
+            string result;
+            var webRequest = WebRequest.Create("http://live.lmgtfy.com/recent.json");
+            using (var response = webRequest.GetResponse())
+            using (var stream = response.GetResponseStream())
+            using (var reader = new StreamReader(stream, Encoding.UTF8))
+                result = reader.ReadToEnd();
 
-            // Pipes the stream to a higher level stream reader with the required encoding format. 
-            StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
-            string result = readStream.ReadToEnd();
+            var serializer = new JavaScriptSerializer();
+            var data = serializer.Deserialize<LmgtfyObject[]>(result);
 
-            LmgtfyObject[] yay = JsonConvert.DeserializeObject<LmgtfyObject[]>(result);
-
-
-            return new LmgtfyResponse() { Response = yay };
+            return new LmgtfyResponse { Response = data };
         }
     }
 }

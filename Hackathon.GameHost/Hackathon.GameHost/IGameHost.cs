@@ -14,6 +14,7 @@ namespace Hackathon.GameHost
 
         void RoundStarted(Guid roundId, string imageUrl, Player[] players);
         void JudgingReady(Guid roundID, Player[] players);
-        void JudgingComplete(Guid roundId, Player winner, string actualTerm, Player[] player);        
+        void JudgingComplete(Guid roundId, Player winner, string actualTerm, Player[] player);
+        void ResetGame(Guid roundId);
     }
 }

@@ -108,9 +108,16 @@ namespace Hackathon.GameHost
             this.pendingPlayers.RemoveAll(x => x.name == player.name);
         }
 
+        private readonly object playerJoinLock = new object();
         private void OnPlayerJoined(object sender, ClientEventArgs e)
         {
-            Console.WriteLine("New player joined: " + e.ClientData.info.name + " (" + e.ClientData.id + ")");
+            if (activePlayers.Any(x => x.name == e.ClientData.id) || pendingPlayers.Any(x => x.name == e.ClientData.id))
+            {
+                Console.WriteLine("Player '{0}' already exists.", e.ClientData.id);
+                return;
+            }
+
+            Console.WriteLine("New player joined: " + e.ClientData.id);
 
             var player = e.ClientData.info;
             player.type = "player";
@@ -221,7 +228,17 @@ namespace Hackathon.GameHost
                         else
                             Console.WriteLine("No winner found...");
 
-                        this.gameHost.JudgingComplete(this.round.Id, this.round.Winner, this.round.ActualTerm, this.activePlayers.ToArray());
+                        var players =
+                            this.activePlayers
+                                .OrderByDescending(x => x.current_score)
+                                .ThenBy(x => x.name)
+                                .ToArray();
+
+                        this.gameHost.JudgingComplete(
+                            this.round.Id, 
+                            this.round.Winner, 
+                            this.round.ActualTerm, 
+                            players);
 
                         Console.WriteLine("The Judging phase is over. Transitioning to Game Over in {0} second(s).", GAME_OVER_TIME_IN_SECONDS);
 
@@ -275,6 +292,7 @@ namespace Hackathon.GameHost
 
             var pickedImage = imagePicker.Pick();
             Console.WriteLine("This image's url is {0}!", pickedImage.Url);
+            Console.WriteLine("Brought to you by: '{0}'", pickedImage.Term);
             var image = GameImage.FromImageData(pickedImage);
 
             this.round.Id = Guid.NewGuid();
@@ -284,15 +302,27 @@ namespace Hackathon.GameHost
             foreach (var activePlayer in activePlayers)
                 activePlayer.guess = null;
 
+            var players =
+                this.activePlayers
+                    .OrderByDescending(x => x.current_score)
+                    .ThenBy(x => x.name)
+                    .ToArray();
+
             this.gameHost.RoundStarted(
                 this.round.Id, 
                 image.URL, 
-                this.activePlayers.ToArray());
+                players);
         }
 
         private void StartJudging()
         {
-            this.gameHost.JudgingReady(this.round.Id, this.activePlayers.ToArray());
+            var players =
+                this.activePlayers
+                    .OrderByDescending(x => x.current_score)
+                    .ThenBy(x => x.name)
+                    .ToArray();
+
+            this.gameHost.JudgingReady(this.round.Id, players);
         }
 
         private string GetPlayerNames()

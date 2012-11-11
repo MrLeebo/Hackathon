@@ -109,6 +109,12 @@ namespace Hackathon.GameHost
             server.Trigger(request);
         }
 
+        public void ResetGame(Guid roundId)
+        {
+            var request = new ObjectPusherRequest(PUBLIC_CHANNEL, "game-round-reset", new {round_id = roundId});
+            this.server.Trigger(request);
+        }
+
         public void Dispose()
         {
             Dispose(true);
@@ -126,7 +132,7 @@ namespace Hackathon.GameHost
                     {
                         try
                         {
-                            var triggerData = a.ToObject<ClientData>();
+                            var triggerData = a.ToObject<SubmittedGuess>();
                             var request = new ObjectPusherRequest(PUBLIC_CHANNEL, "game-guess-submitted", triggerData);
 
                             server.Trigger(request);
