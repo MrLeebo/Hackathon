@@ -9,6 +9,9 @@ namespace Hackathon.GameHost.Tumblr
 {
     public class BingService
     {
+        private static string accountKey_jug = "Xc7Qal1cSxvUfFpiPc1JmVDxdwCPymWIa0gUlervTHc=";
+        private static string accountKey_ionut = "RT8E83E8IMsC0kwcB0vBIJNjNqEqNsNAQlEyxemvAS4=";
+
         public IList<ImageWebResult> ExecuteQuery(string query)
         {
             bool esito = false;
@@ -17,12 +20,11 @@ namespace Hackathon.GameHost.Tumblr
             {
                 //URL Base:
                 Uri urlBase = new Uri("https://api.datamarket.azure.com");
-                //Insert your Primary account key here:
-                string accountKey = "RT8E83E8IMsC0kwcB0vBIJNjNqEqNsNAQlEyxemvAS4=";
+                
                 //Make the system recognizes your account key:
-                NetworkCredential credentials = new NetworkCredential(accountKey, accountKey);
+                NetworkCredential credentials = new NetworkCredential(accountKey_jug, accountKey_jug);
                 System.Data.Services.Client.DataServiceContext dsc = new System.Data.Services.Client.DataServiceContext(urlBase);
-                dsc.Credentials = new NetworkCredential(accountKey, accountKey);
+                dsc.Credentials = new NetworkCredential(accountKey_jug, accountKey_jug);
                 
                 //Executes the query:
                 string searchUri = this.CreateUrl(query);
