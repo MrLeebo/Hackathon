@@ -9,19 +9,27 @@ namespace Hackathon.GameHost
     {
         public ImageData Pick()
         {
-            LmgtfyClient client = new LmgtfyClient();
+            var random = new Random();
+
+            var client = new LmgtfyClient();
             LmgtfyResponse lmgtfyResponse = client.Load();
 
-            var random = new Random();
-            var index = random.Next(lmgtfyResponse.Response.Length);
-            LmgtfyObject picked = lmgtfyResponse.Response[index];
+            while (true)
+            {
+                var index = random.Next(lmgtfyResponse.Response.Length);
+                LmgtfyObject picked = lmgtfyResponse.Response[index];
 
-            var bingService = new BingService();
-            var results = bingService.ExecuteQuery(picked.q);
+                var bingService = new BingService();
+                var results = bingService.ExecuteQuery(picked.q);
 
-            index = random.Next(results.Count);
-            var result = results[index];
-            return new ImageData {Url = result.MediaUrl, Term = result.Title};
+                if (results.Count == 0)
+                    continue;
+
+                index = random.Next(results.Count);
+                var result = results[index];
+
+                return new ImageData {Url = result.MediaUrl, Term = result.Title};
+            }
         }
     }
 }

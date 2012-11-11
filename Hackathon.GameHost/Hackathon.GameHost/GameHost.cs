@@ -116,45 +116,73 @@ namespace Hackathon.GameHost
 
         private void OnMemberAdded(object data)
         {
-            var clientData = data.ToObject<ClientData>();
-            Channel privateChannel = client.Subscribe(clientData.info.private_channel);
-            privateChannel.Bind(
-                "client-guess-submitted",
-                a =>
+            try
+            {
+                var clientData = data.ToObject<ClientData>();
+                Channel privateChannel = client.Subscribe(clientData.info.private_channel);
+                privateChannel.Bind(
+                    "client-guess-submitted",
+                    a =>
                     {
-                        var triggerData = a.ToObject<ClientData>();
-                        var request = new ObjectPusherRequest(PUBLIC_CHANNEL, "game-guess-submitted", triggerData);
+                        try
+                        {
+                            var triggerData = a.ToObject<ClientData>();
+                            var request = new ObjectPusherRequest(PUBLIC_CHANNEL, "game-guess-submitted", triggerData);
 
-                        server.Trigger(request);
+                            server.Trigger(request);
 
-                        if (GuessSubmitted != null)
-                            GuessSubmitted(this, new GuessSubmittedEventArgs(a));
+                            if (GuessSubmitted != null)
+                                GuessSubmitted(this, new GuessSubmittedEventArgs(a));
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.ToString());
+                        }
                     });
 
-            privateChannel.Bind(
-                "client-judging-submitted",
-                b =>
+                privateChannel.Bind(
+                    "client-judging-submitted",
+                    b =>
                     {
-                        var triggerData = b.ToObject<JudgingSubmitted>();
-                        var request = new ObjectPusherRequest(PUBLIC_CHANNEL, "game-judging-submitted", triggerData);
+                        try
+                        {
+                            var triggerData = b.ToObject<JudgingSubmitted>();
+                            var request = new ObjectPusherRequest(PUBLIC_CHANNEL, "game-judging-submitted", triggerData);
 
-                        server.Trigger(request);
+                            server.Trigger(request);
 
-                        if (JudgeSubmitted != null)
-                            JudgeSubmitted(this, new JudgingCompleteEventArgs(b));
+                            if (JudgeSubmitted != null)
+                                JudgeSubmitted(this, new JudgingCompleteEventArgs(b));
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.ToString());
+                        }
                     });
 
-            if (PlayerJoined != null)
-                PlayerJoined(this, new ClientEventArgs(data));            
+                if (PlayerJoined != null)
+                    PlayerJoined(this, new ClientEventArgs(data));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
         }
 
         private void OnMemberRemoved(object data)
         {
-            var clientData = data.ToObject<ClientData>();
-            client.Unsubscribe(clientData.info.private_channel);
+            try
+            {
+                var clientData = data.ToObject<ClientData>();
+                client.Unsubscribe(clientData.info.private_channel);
 
-            if (PlayerQuit != null)
-                PlayerQuit(this, new ClientEventArgs(data));
+                if (PlayerQuit != null)
+                    PlayerQuit(this, new ClientEventArgs(data));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
         }
 
         private void Dispose(bool disposing)

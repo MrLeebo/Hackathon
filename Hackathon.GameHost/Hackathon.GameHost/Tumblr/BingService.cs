@@ -14,8 +14,7 @@ namespace Hackathon.GameHost.Tumblr
 
         public IList<ImageWebResult> ExecuteQuery(string query)
         {
-            bool esito = false;
-            List<ImageWebResult> webResults = new List<ImageWebResult>();
+            var webResults = new List<ImageWebResult>();
             try
             {
                 //URL Base:
@@ -31,20 +30,10 @@ namespace Hackathon.GameHost.Tumblr
                 Uri urlSearch = new Uri(searchUri);
                 dsc.IgnoreMissingProperties = true;
                 webResults = dsc.Execute<ImageWebResult>(urlSearch).ToList<ImageWebResult>();
-                //Cycles through results:
-                //response.Web.Results
-                foreach (ImageWebResult result in webResults)
-                {
-                    Console.WriteLine(result.Title);
-                    Console.WriteLine(result.MediaUrl);
-                    Console.WriteLine("\r\n");
-                }
-
-                esito = true;
             }
             catch (Exception ex)
             {
-                esito = false;
+                Console.WriteLine(ex.ToString());
             }
 
             return webResults;

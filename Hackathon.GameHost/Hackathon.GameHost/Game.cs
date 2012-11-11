@@ -11,8 +11,8 @@ namespace Hackathon.GameHost
         #region Fields
 
         private const int STARTING_TIME_IN_SECONDS = 5;
-        private const int GUESSING_TIME_IN_SECONDS = 15;
-        private const int JUDGING_TIME_IN_SECONDS = 15;
+        private const int GUESSING_TIME_IN_SECONDS = 10;
+        private const int JUDGING_TIME_IN_SECONDS = 10;
         private const int GAME_OVER_TIME_IN_SECONDS = 10;
         private const int INTERVAL_IN_SECONDS = 5;
 
@@ -128,10 +128,6 @@ namespace Hackathon.GameHost
                         this.gameState = GameState.Initializing;
                         roundFinishedInterval = DateTime.Now;
 
-                        this.pendingPlayers.Add(new Player {name = "Joe", private_channel = "private-joe", type = "player"});
-                        this.pendingPlayers.Add(new Player { name = "Sue", private_channel = "private-sue", type = "player" });
-                        this.pendingPlayers.Add(new Player { name = "Bob", private_channel = "private-bob", type = "player" });
-
                         return;
                     }
                 case GameState.Initializing:
@@ -175,6 +171,13 @@ namespace Hackathon.GameHost
                     }
                 case GameState.Guessing:
                     {
+                        if (this.activePlayers.All(x => x.type != "judge"))
+                        {
+                            Console.WriteLine("The judge has quit the game.");
+                            gameState = GameState.Initializing;
+                            return;
+                        }
+
                         if (DateTime.Now < roundFinishedInterval)
                             return;
 
@@ -191,6 +194,13 @@ namespace Hackathon.GameHost
                     }
                 case GameState.Judging:
                     {
+                        if (this.activePlayers.All(x => x.type != "judge"))
+                        {
+                            Console.WriteLine("The judge has quit the game.");
+                            gameState = GameState.Initializing;
+                            return;
+                        }
+
                         if (DateTime.Now < roundFinishedInterval)
                             return;
 
