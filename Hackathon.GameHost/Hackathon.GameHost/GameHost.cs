@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Hackathon.GameHost.Domain;
 using PusherClientDotNet;
@@ -72,12 +71,12 @@ namespace Hackathon.GameHost
 
         public event EventHandler ShutDown;
 
-        public void RoundStarted(Guid round_id, string imageUrl, Player[] players)
+        public void RoundStarted(Guid roundId, string imageUrl, Player[] players)
         {
             var data =
                 new RoundStart
                     {
-                        round_id = round_id,
+                        round_id = roundId,
                         image_url = imageUrl,
                         players = players.ToArray()
                     };
@@ -90,12 +89,12 @@ namespace Hackathon.GameHost
             server.Trigger(request);
         }
 
-        public void JudgingReady(Guid round_id, Player[] players)
+        public void JudgingReady(Guid roundId, Player[] players)
         {
             var data =
                 new RoundStart
                     {
-                        round_id = round_id,
+                        round_id = roundId,
                         players = players
                     };
 
@@ -107,13 +106,14 @@ namespace Hackathon.GameHost
             server.Trigger(request);
         }
 
-        public void JudgingComplete(Guid round_Id, Player winner, Player[] players)
+        public void JudgingComplete(Guid roundId, Player winner, string actualTerm, Player[] players)
         {
             var data =
                 new RoundWinner
                     {
-                        round_id = round_Id,
-                        winning_player = winner.name,
+                        round_id = roundId,
+                        winning_player = (winner != null) ? winner.name : null,
+                        actual_term = actualTerm,
                         players = players
                     };
 

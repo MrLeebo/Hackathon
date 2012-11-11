@@ -13,7 +13,7 @@ namespace Hackathon.GameHost
         event EventHandler ShutDown;
 
         void RoundStarted(Guid roundId, string imageUrl, Player[] players);
-        void JudgingReady(Guid roundId, Player[] players);
-        void JudgingComplete(Guid roundId, Player winner, Player[] player);        
+        void JudgingReady(Guid roundID, Player[] players);
+        void JudgingComplete(Guid roundId, Player winner, string actualTerm, Player[] player);        
     }
 }

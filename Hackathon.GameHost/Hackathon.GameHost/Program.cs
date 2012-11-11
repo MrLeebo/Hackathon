@@ -1,5 +1,8 @@
 ﻿using System;
+using Hackathon.GameHost.Lmgtfy;
+using Hackathon.GameHost.Tumblr;
 using PusherClientDotNet;
+using System.Collections.Generic;
 
 namespace Hackathon.GameHost
 {

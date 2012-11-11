@@ -83,7 +83,8 @@ namespace Hackathon.GameHost
 
             Console.WriteLine("The judge thinks " + e.RoundWinner.winning_player + " had the best answer!");
 
-            this.round.Winner = e.RoundWinner.winning_player;
+            var winner = this.activePlayers.FirstOrDefault(x => x.name == e.RoundWinner.winning_player);
+            this.round.Winner = winner;
         }
 
         private void OnPlayerGuessSubmitted(object sender, GuessSubmittedEventArgs e)
@@ -196,7 +197,7 @@ namespace Hackathon.GameHost
                         bool winnerFound = false;
                         foreach (var activePlayer in activePlayers)
                         {
-                            if (activePlayer.name == this.round.Winner)
+                            if (activePlayer == this.round.Winner)
                             {
                                 winnerFound = true;
                                 activePlayer.current_score++;
@@ -209,6 +210,8 @@ namespace Hackathon.GameHost
                             Console.WriteLine(this.round.Winner + " is the winner!");
                         else
                             Console.WriteLine("No winner found...");
+
+                        this.gameHost.JudgingComplete(this.round.Id, this.round.Winner, this.round.ActualTerm, this.activePlayers.ToArray());
 
                         Console.WriteLine("The Judging phase is over. Transitioning to Game Over in {0} second(s).", GAME_OVER_TIME_IN_SECONDS);
 
@@ -265,6 +268,8 @@ namespace Hackathon.GameHost
             var image = GameImage.FromImageData(pickedImage);
 
             this.round.Id = Guid.NewGuid();
+            this.round.ActualTerm = pickedImage.Term;
+            this.round.Winner = null;
 
             foreach (var activePlayer in activePlayers)
                 activePlayer.guess = null;
