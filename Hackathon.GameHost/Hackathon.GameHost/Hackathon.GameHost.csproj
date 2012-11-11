@@ -79,6 +79,7 @@
     <Compile Include="Domain\ImageData.cs" />
     <Compile Include="Domain\JavaScriptSerializerExtensions.cs" />
     <Compile Include="Domain\JudgingCompleteEventArgs.cs" />
+    <Compile Include="Domain\JudgingSubmitted.cs" />
     <Compile Include="Domain\Player.cs" />
     <Compile Include="Domain\RoundStart.cs" />
     <Compile Include="Domain\RoundWinner.cs" />
