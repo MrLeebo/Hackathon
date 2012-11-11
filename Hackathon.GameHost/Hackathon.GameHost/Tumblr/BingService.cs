@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Net;
-using System.Web;
 
 namespace Hackathon.GameHost.Tumblr
 {
@@ -21,8 +19,7 @@ namespace Hackathon.GameHost.Tumblr
                 Uri urlBase = new Uri("https://api.datamarket.azure.com");
                 
                 //Make the system recognizes your account key:
-                NetworkCredential credentials = new NetworkCredential(accountKey_jug, accountKey_jug);
-                System.Data.Services.Client.DataServiceContext dsc = new System.Data.Services.Client.DataServiceContext(urlBase);
+                var dsc = new System.Data.Services.Client.DataServiceContext(urlBase);
                 dsc.Credentials = new NetworkCredential(accountKey_jug, accountKey_jug);
                 
                 //Executes the query:
@@ -44,7 +41,7 @@ namespace Hackathon.GameHost.Tumblr
             Double? Latitude = null, 
             Double? Longitude = null, 
             String Market = "", 
-            String Adult = "Off", 
+            String Adult = "Strict", 
             String WebFileType = "", 
             String ImageFilters = "Size:Medium", 
             String VideoFilters = "", 
