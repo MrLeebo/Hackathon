@@ -1,6 +1,8 @@
 ﻿using System;
 using Hackathon.GameHost.Lmgtfy;
+using Hackathon.GameHost.Tumblr;
 using PusherClientDotNet;
+using System.Collections.Generic;
 
 namespace Hackathon.GameHost
 {
@@ -11,10 +13,12 @@ namespace Hackathon.GameHost
             Console.WriteLine("Random testing crap...");
 
             LmgtfyClient lmgtfyClient = new LmgtfyClient();
-            LmgtfyResponse lmgtfyResponse = lmgtfyClient.Load();
+            //LmgtfyResponse lmgtfyResponse = lmgtfyClient.Load();
 
-            TumblrClient client = new TumblrClient();
-            TumblrResponse result = client.Tagged("corn");
+            //TumblrClient client = new TumblrClient();
+            //TumblrResponse result = client.Tagged("corn");
+            BingService bingService = new BingService();
+            IList<ImageWebResult> results = bingService.ExecuteQuery("corn");
 
             Pusher.OnLog += Log;
 

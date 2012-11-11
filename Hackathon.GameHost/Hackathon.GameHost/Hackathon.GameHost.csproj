@@ -61,6 +61,7 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.ServiceModel.Web" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -88,6 +89,7 @@
     <Compile Include="IGameHost.cs" />
     <Compile Include="Lmgtfy\ILmgtfyService.cs" />
     <Compile Include="Lmgtfy\LmgtfyResponse.cs" />
+    <Compile Include="Tumblr\BingService.cs" />
     <Compile Include="Tumblr\TumblrResponse.cs" />
     <Compile Include="Tumblr\ITumblrService.cs" />
     <Compile Include="IImagePicker.cs" />
