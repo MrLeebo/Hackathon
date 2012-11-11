@@ -38,22 +38,6 @@ namespace Hackathon.GameHost
             privateChannel.Bind("client-player-added", OnMemberAdded);
             privateChannel.Bind("client-player-dropped", OnMemberRemoved);
 
-            privateChannel.Bind(
-                "client-guess-submitted",
-                d =>
-                {
-                    if (GuessSubmitted != null)
-                        GuessSubmitted(this, new GuessSubmittedEventArgs(d));
-                });
-
-            privateChannel.Bind(
-                "client-judging-completed",
-                d =>
-                    {
-                        if (JudgeSubmitted != null)
-                            JudgeSubmitted(this, new JudgingCompleteEventArgs(d));
-                    });
-
             var publicChannel = client.Subscribe(PUBLIC_CHANNEL);
             publicChannel.Bind(
                 "shutdown",
@@ -119,7 +103,7 @@ namespace Hackathon.GameHost
 
             var request = new ObjectPusherRequest(
                 PUBLIC_CHANNEL,
-                "client-judging-completed",
+                "game-judging-completed",
                 data);
 
             server.Trigger(request);
@@ -135,12 +119,30 @@ namespace Hackathon.GameHost
             var clientData = data.ToObject<ClientData>();
             Channel privateChannel = client.Subscribe(clientData.info.private_channel);
             privateChannel.Bind(
-                "game:player_guess_submitted",
+                "client-guess-submitted",
                 a =>
-                {
-                    if (GuessSubmitted != null)
-                        GuessSubmitted(this, new GuessSubmittedEventArgs(a));
-                });
+                    {
+                        var triggerData = a.ToObject<ClientData>();
+                        var request = new ObjectPusherRequest(PUBLIC_CHANNEL, "game-guess-submitted", triggerData);
+
+                        server.Trigger(request);
+
+                        if (GuessSubmitted != null)
+                            GuessSubmitted(this, new GuessSubmittedEventArgs(a));
+                    });
+
+            privateChannel.Bind(
+                "client-judging-submitted",
+                b =>
+                    {
+                        var triggerData = b.ToObject<JudgingSubmitted>();
+                        var request = new ObjectPusherRequest(PUBLIC_CHANNEL, "game-judging-submitted", triggerData);
+
+                        server.Trigger(request);
+
+                        if (JudgeSubmitted != null)
+                            JudgeSubmitted(this, new JudgingCompleteEventArgs(b));
+                    });
 
             if (PlayerJoined != null)
                 PlayerJoined(this, new ClientEventArgs(data));            
