@@ -70,10 +70,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BingSearchHelper.cs" />
+    <Compile Include="Domain\ClientData.cs" />
+    <Compile Include="Domain\ClientEventArgs.cs" />
     <Compile Include="Domain\GameImage.cs" />
     <Compile Include="Domain\GameRound.cs" />
+    <Compile Include="Domain\GuessSubmittedEventArgs.cs" />
     <Compile Include="Domain\ImageData.cs" />
+    <Compile Include="Domain\JavaScriptSerializerExtensions.cs" />
+    <Compile Include="Domain\JudgingCompleteEventArgs.cs" />
     <Compile Include="Domain\Player.cs" />
+    <Compile Include="Domain\RoundStart.cs" />
+    <Compile Include="Domain\RoundWinner.cs" />
+    <Compile Include="Domain\SubmittedGuess.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="GameHost.cs" />
     <Compile Include="GameState.cs" />

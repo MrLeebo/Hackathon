@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Hackathon.GameHost.Domain;
 using PusherClientDotNet;
 using PusherRESTDotNet;
@@ -12,8 +13,8 @@ namespace Hackathon.GameHost
         private const string APP_KEY = "6a4677394df2ac8f08d2";
         private const string SECRET = "0b981fba2c00f49d5dac";
 
-        private const string PUBLIC_CHANNEL = "public-channel";
-        private const string GAME_CHANNEL = "private-game-channel";
+        private const string PUBLIC_CHANNEL = "public";
+        private const string SERVER_CHANNEL = "private-server";
 
         private readonly Pusher client;
         private readonly IPusherProvider server;
@@ -34,88 +35,92 @@ namespace Hackathon.GameHost
         public void Initialize()
         {
             Pusher.channel_auth_endpoint = "https://beta.network360.com/pusher/auth/gamehome";
-            var privateChannel = client.Subscribe(GAME_CHANNEL);
+            var privateChannel = client.Subscribe(SERVER_CHANNEL);
             privateChannel.Bind("client-player-added", OnMemberAdded);
             privateChannel.Bind("client-player-dropped", OnMemberRemoved);
 
             privateChannel.Bind(
-                "game:player_guess_submitted",
+                "client-guess-submitted",
                 d =>
                 {
-                    if (OnPlayerGuessSubmitted != null)
-                        OnPlayerGuessSubmitted(this, new JSONEventArgs(d));
+                    if (GuessSubmitted != null)
+                        GuessSubmitted(this, new GuessSubmittedEventArgs(d));
                 });
+
+            privateChannel.Bind(
+                "client-judging-completed",
+                d =>
+                    {
+                        if (JudgeSubmitted != null)
+                            JudgeSubmitted(this, new JudgingCompleteEventArgs(d));
+                    });
 
             var publicChannel = client.Subscribe(PUBLIC_CHANNEL);
             publicChannel.Bind(
-                "gameshutdown",
+                "shutdown",
                 d =>
                     {
-                        if (OnShutDown != null)
-                            OnShutDown(this, new JSONEventArgs(d));
+                        if (ShutDown != null)
+                            ShutDown(this, new JSONEventArgs(d));
                     });
         }
 
-        public event EventHandler<JSONEventArgs> OnPlayerJoined;
-        public event EventHandler<JSONEventArgs> OnPlayerQuit;
-        public event EventHandler<JSONEventArgs> OnPlayerGuessSubmitted;
-        public event EventHandler<JSONEventArgs> OnShutDown;
+        public event EventHandler<ClientEventArgs> PlayerJoined;
+        public event EventHandler<ClientEventArgs> PlayerQuit;
+        public event EventHandler<GuessSubmittedEventArgs> GuessSubmitted;
+        public event EventHandler<JudgingCompleteEventArgs> JudgeSubmitted;
 
-        public void StartRound(IEnumerable<Player> players, GameImage image, GameRound round)
+        public event EventHandler ShutDown;
+
+        public void RoundStarted(Guid round_id, string imageUrl, Player[] players)
         {
-            var request = new ObjectPusherRequest(
-                PUBLIC_CHANNEL,
-                "gamestartround",
-                new
+            var data =
+                new RoundStart
                     {
-                        round = round,
-                        players = players,
-                        image = image
-                    });
+                        round_id = round_id,
+                        image_url = imageUrl,
+                        players = players.ToArray()
+                    };
+
+            var request = new ObjectPusherRequest(
+                PUBLIC_CHANNEL,
+                "game-round-started",
+                data);
 
             server.Trigger(request);
         }
 
-        public void UpdatePlayerStatus(Player player, GameRound round, string status)
+        public void JudgingReady(Guid round_id, Player[] players)
         {
+            var data =
+                new RoundStart
+                    {
+                        round_id = round_id,
+                        players = players
+                    };
+
             var request = new ObjectPusherRequest(
                 PUBLIC_CHANNEL,
-                "gameupdateplayerstatus",
-                new
-                {
-                    round = round,
-                    player = player,
-                    status = status
-                });
+                "game-judging-ready",
+                data);
 
             server.Trigger(request);
         }
 
-        public void StartJudgingRound(GameRound round, IDictionary<Player, string> guessByPlayer)
+        public void JudgingComplete(Guid round_Id, Player winner, Player[] players)
         {
+            var data =
+                new RoundWinner
+                    {
+                        round_id = round_Id,
+                        winning_player = winner.name,
+                        players = players
+                    };
+
             var request = new ObjectPusherRequest(
                 PUBLIC_CHANNEL,
-                "gamestartjudginground",
-                new
-                {
-                    round = round,
-                    playerGuesses = guessByPlayer
-                });
-
-            server.Trigger(request);
-        }
-
-        public void EndRound(GameRound round, IDictionary<Player, string> guessByPlayer, Player winner)
-        {
-            var request = new ObjectPusherRequest(
-                PUBLIC_CHANNEL,
-                "gameendround",
-                new
-                {
-                    round = round,
-                    winner = winner,
-                    playerGuesses = guessByPlayer
-                });
+                "client-judging-completed",
+                data);
 
             server.Trigger(request);
         }
@@ -125,27 +130,29 @@ namespace Hackathon.GameHost
             Dispose(true);
         }
 
-        private void OnMemberAdded(dynamic data)
+        private void OnMemberAdded(object data)
         {
-            Channel privateChannel = client.Subscribe(data.player.info.private_channel);
+            var clientData = data.ToObject<ClientData>();
+            Channel privateChannel = client.Subscribe(clientData.info.private_channel);
             privateChannel.Bind(
                 "game:player_guess_submitted",
                 a =>
                 {
-                    if (OnPlayerGuessSubmitted != null)
-                        OnPlayerGuessSubmitted(this, new JSONEventArgs(a));
+                    if (GuessSubmitted != null)
+                        GuessSubmitted(this, new GuessSubmittedEventArgs(a));
                 });
 
-            if (OnPlayerJoined != null)
-                OnPlayerJoined(this, new JSONEventArgs(data));            
+            if (PlayerJoined != null)
+                PlayerJoined(this, new ClientEventArgs(data));            
         }
 
-        private void OnMemberRemoved(dynamic data)
+        private void OnMemberRemoved(object data)
         {
-            client.Unsubscribe(data.player.info.private_channel);
+            var clientData = data.ToObject<ClientData>();
+            client.Unsubscribe(clientData.info.private_channel);
 
-            if (OnPlayerQuit != null)
-                OnPlayerQuit(this, new JSONEventArgs(data));
+            if (PlayerQuit != null)
+                PlayerQuit(this, new ClientEventArgs(data));
         }
 
         private void Dispose(bool disposing)
@@ -155,7 +162,7 @@ namespace Hackathon.GameHost
 
             if (disposing)
             {
-                client.Unsubscribe(GAME_CHANNEL);
+                client.Unsubscribe(SERVER_CHANNEL);
                 client.Unsubscribe(PUBLIC_CHANNEL);
                 client.Disconnect();
             }
