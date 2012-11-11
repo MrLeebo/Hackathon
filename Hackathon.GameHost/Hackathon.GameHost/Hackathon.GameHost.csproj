@@ -96,7 +96,6 @@
     <Compile Include="Tumblr\ITumblrService.cs" />
     <Compile Include="IImagePicker.cs" />
     <Compile Include="SimpleImagePicker.cs" />
-    <Compile Include="Domain\JSONEventArgs.cs" />
     <Compile Include="Lmgtfy\LmgtfyClient.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

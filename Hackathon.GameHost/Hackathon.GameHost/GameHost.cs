@@ -43,7 +43,7 @@ namespace Hackathon.GameHost
                 d =>
                     {
                         if (ShutDown != null)
-                            ShutDown(this, new JSONEventArgs(d));
+                            ShutDown(this, EventArgs.Empty);
                     });
         }
 

@@ -1,5 +1,4 @@
 ﻿// ReSharper disable InconsistentNaming
-
 using System.Web.Script.Serialization;
 
 namespace Hackathon.GameHost.Domain
